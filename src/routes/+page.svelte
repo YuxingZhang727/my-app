@@ -9,6 +9,20 @@
                   { name: 'water', qty: 1 },
                   { name: 'milk', qty: 5 }];
 
+    import { onMount } from "svelte";
+    import { apiData, catFacts } from './store.js';
+    onMount(async () => {
+      fetch("https://cat-fact.herokuapp.com/facts")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        apiData.set(data);
+      }).catch(error => {
+        console.log(error);
+        return [];
+      });
+    });
+
 </script>
 
   <Button 
@@ -22,12 +36,21 @@
     Welcome to my website
 </h1>
 
-<h1>grocery list</h1>
+<h1 class="text-2xl font-bold mb-2">grocery list</h1>
 <ul>
 	{#each items as item, i}
 		<li>{i + 1}:{item.name} x {item.qty}</li>
 	{/each}
 </ul>
+
+<main>
+	<h1>Cat Facts</h1>
+	<ul>
+	{#each $catFacts as fact}
+		<li>{fact}</li>
+	{/each}
+	</ul>
+</main>
 
 
 

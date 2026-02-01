@@ -5,6 +5,10 @@
         console.log(msg);
     };
 
+    let items = [{ name: 'bread', qty: 2 },
+                  { name: 'water', qty: 1 },
+                  { name: 'milk', qty: 5 }];
+
 </script>
 
   <Button 
@@ -18,6 +22,13 @@
     Welcome to my website
 </h1>
 
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<h1>grocery list</h1>
+<ul>
+	{#each items as item, i}
+		<li>{i + 1}:{item.name} x {item.qty}</li>
+	{/each}
+</ul>
+
+
 
 

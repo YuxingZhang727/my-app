@@ -1,28 +1,41 @@
 <script>
-    import Button from './components/button.svelte';
-    const handleClick = (msg) => {
-        alert(msg);
-        console.log(msg);
+  import Button from './components/button.svelte';
+  const handleClick = (msg) => {
+      alert(msg);
+      console.log(msg);
     };
 
-    let items = [{ name: 'bread', qty: 2 },
-                  { name: 'water', qty: 1 },
-                  { name: 'milk', qty: 5 }];
+  let items = [{ name: 'bread', qty: 2 },
+                { name: 'water', qty: 1 },
+                { name: 'milk', qty: 5 }];
 
-    import { onMount } from "svelte";
-    import { apiData, catFacts } from './store.js';
-    onMount(async () => {
-      fetch("https://cat-fact.herokuapp.com/facts")
-      .then(response => response.json())
+  import { onMount } from "svelte";
+  import { apiData, bookshelfList, isLoading, errorMsg } from './store.js';
+
+  onMount(async () => {
+    isLoading.set(true);
+    errorMsg.set("");
+
+    const userId = "103477348515135554720";
+    const url = `https://www.googleapis.com/books/v1/users/${userId}/bookshelves`;
+
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error(response.status);
+        return response.json();
+      })
       .then(data => {
         console.log(data);
         apiData.set(data);
-      }).catch(error => {
+      })
+      .catch(error => {
         console.log(error);
-        return [];
+        errorMsg.set(error.message);
+      })
+      .finally(() => {
+        isLoading.set(false);
       });
-    });
-
+  });
 </script>
 
   <Button 
@@ -44,14 +57,21 @@
 </ul>
 
 <main>
-	<h1>Cat Facts</h1>
-	<ul>
-	{#each $catFacts as fact}
-		<li>{fact}</li>
-	{/each}
-	</ul>
+  <h1>My Google Books</h1>
+
+  {#if $errorMsg}
+    <p style="color: red;">error:{$errorMsg}</p>
+  {:else if $isLoading}
+    <p>loading</p>
+  {:else}
+    <ul>
+      {#each $bookshelfList as shelf}
+        <li>
+          <strong>{shelf.name}</strong> total {shelf.count} books
+        </li>
+      {:else}
+        <li>No public bookshelves found.</li>
+      {/each}
+    </ul>
+  {/if}
 </main>
-
-
-
-

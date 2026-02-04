@@ -1,15 +1,10 @@
 import { writable, derived } from 'svelte/store';
 
 export const apiData = writable([]);
-export const isLoading = writable(true);
-export const errorMsg = writable("");
 
-export const bookshelfList = derived(apiData, ($apiData) => {
-  if ($apiData && $apiData.items) {
-    return $apiData.items.map(shelf => ({
-      name: shelf.title,
-      count: shelf.volumeCount
-    }));
+export const catImages = derived(apiData, ($apiData) => {
+  if (Array.isArray($apiData)) {
+      return $apiData.map(cat => cat.url);
   }
   return [];
-});
+  });

@@ -1,77 +1,57 @@
 <script>
-  import Button from './components/button.svelte';
-  const handleClick = (msg) => {
-      alert(msg);
-      console.log(msg);
-    };
-
-  let items = [{ name: 'bread', qty: 2 },
-                { name: 'water', qty: 1 },
-                { name: 'milk', qty: 5 }];
-
   import { onMount } from "svelte";
-  import { apiData, bookshelfList, isLoading, errorMsg } from './store.js';
+  import { apiData, catImages } from './store.js';
+  import Button from './components/button.svelte';
+    
+  let items = [
+    { name: 'Apple', qty: 5 },
+    { name: 'Milk', qty: 2 }
+  ];
+
+  function handleClick(msg) {
+    alert(msg);
+  }
 
   onMount(async () => {
-    isLoading.set(true);
-    errorMsg.set("");
-
-    const userId = "103477348515135554720";
-    const url = `https://www.googleapis.com/books/v1/users/${userId}/bookshelves`;
-
-    fetch(url)
+    fetch("https://api.thecatapi.com/v1/images/search?limit=10")
       .then(response => {
-        if (!response.ok) throw new Error(response.status);
+        if (!response.ok) throw new Error("server error");
         return response.json();
       })
       .then(data => {
-        console.log(data);
         apiData.set(data);
       })
       .catch(error => {
-        console.log(error);
-        errorMsg.set(error.message);
-      })
-      .finally(() => {
-        isLoading.set(false);
+        console.error("API request failed:", error);
       });
   });
 </script>
 
-  <Button 
-    label="press me" 
-    bgColor="bg-yellow-500" 
-    onclick={() => handleClick('Hello from Svelte Kit')} 
+<Button label="press me" bgColor="bg-yellow-500" onclick={() => 
+  handleClick('Hello from Svelte Kit')} 
   />
 
 
-<h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-500 mt-10 mb-6 tracking-tight">
-    Welcome to my website
-</h1>
-
-<h1 class="text-2xl font-bold mb-2">grocery list</h1>
-<ul>
-	{#each items as item, i}
-		<li>{i + 1}:{item.name} x {item.qty}</li>
-	{/each}
-</ul>
-
-<main>
-  <h1>My Google Books</h1>
-
-  {#if $errorMsg}
-    <p style="color: red;">error:{$errorMsg}</p>
-  {:else if $isLoading}
-    <p>loading</p>
-  {:else}
-    <ul>
-      {#each $bookshelfList as shelf}
-        <li>
-          <strong>{shelf.name}</strong> total {shelf.count} books
-        </li>
-      {:else}
-        <li>No public bookshelves found.</li>
+<main class="p-8 max-w-6xl mx-auto">
+  <section class="mb-10 p-4 bg-white rounded-lg shadow-sm border">
+    <h2 class="text-2xl font-bold mb-4">Grocery List</h2>
+    <ul class="list-disc pl-5">
+      {#each items as item, i}
+        <li class="text-gray-700">{i + 1}: {item.name} x {item.qty}</li>
       {/each}
     </ul>
-  {/if}
+  </section>
+
+  <section>
+    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800 border-t pt-8">Cat Gallery</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {#each $catImages as imageUrl}
+        <div class="aspect-square rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform">
+          <img src={imageUrl} alt="cat" class="w-full h-full object-cover" />
+        </div>
+      {:else}
+        <p class="col-span-full text-center text-gray-400">loading...</p>
+      {/each}
+    </div>
+  </section>
 </main>
